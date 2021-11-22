@@ -210,6 +210,10 @@ describe('Deploy to ECS', () => {
                             "value": "world"
                         },
                         {
+                            "name": "test",
+                            "value": ""
+                        },
+                        {
                             "name": "",
                             "value": ""
                         }
@@ -222,6 +226,7 @@ describe('Deploy to ECS', () => {
                     "essential": false
                 } ],
                 "requiresCompatibilities": [ "EC2" ],
+                "registeredAt": 1611690781,
                 "family": "task-def-family"
             }
             `;
