@@ -90,6 +90,7 @@ async function run() {
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const cluster = core.getInput('cluster', { required: false });
+    const subnets = core.getInput('subnets', { required: true });
     const count = core.getInput('count', { required: true });
     const startedBy = core.getInput('started-by', { required: false }) || agent;
     const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
@@ -122,6 +123,11 @@ async function run() {
 
     core.debug(`Running task with ${JSON.stringify({
       cluster: clusterName,
+      networkConfiguration: {
+        awsvpcConfiguration: {
+          subnets: subnets
+        }
+      },
       taskDefinition: taskDefArn,
       count: count,
       startedBy: startedBy
@@ -129,6 +135,11 @@ async function run() {
 
     const runTaskResponse = await ecs.runTask({
       cluster: clusterName,
+      networkConfiguration: {
+        awsvpcConfiguration: {
+          subnets: subnets
+        }
+      },
       taskDefinition: taskDefArn,
       count: count,
       startedBy: startedBy
@@ -164,7 +175,7 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
   const maxAttempts = (waitForMinutes * 60) / WAIT_DEFAULT_DELAY_SEC;
 
   core.debug('Waiting for tasks to stop');
-  
+
   const waitTaskResponse = await ecs.waitFor('tasksStopped', {
     cluster: clusterName,
     tasks: taskArns,
@@ -175,7 +186,7 @@ async function waitForTasksStopped(ecs, clusterName, taskArns, waitForMinutes) {
   }).promise();
 
   core.debug(`Run task response ${JSON.stringify(waitTaskResponse)}`)
-  
+
   core.info(`All tasks have stopped. Watch progress in the Amazon ECS console: https://console.aws.amazon.com/ecs/home?region=${aws.config.region}#/clusters/${clusterName}/tasks`);
 }
 
@@ -190,7 +201,7 @@ async function tasksExitCode(ecs, clusterName, taskArns) {
   const reasons = containers.map(container => container.reason)
 
   const failuresIdx = [];
-  
+
   exitCodes.filter((exitCode, index) => {
     if (exitCode !== 0) {
       failuresIdx.push(index)
