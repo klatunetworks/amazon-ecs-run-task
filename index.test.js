@@ -35,7 +35,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')                               // cluster
             .mockReturnValueOnce('1')                                         // count
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
-            .mockReturnValueOnce(['subnet-asdfasdfa']);                       // subnets
+            .mockReturnValueOnce('subnet-asdfasdfa');                       // subnet
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
 
@@ -149,7 +149,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')                               // cluster
             .mockReturnValueOnce('1')                                         // count
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
-            .mockReturnValueOnce(['subnet-123456'])                        // subnets
+            .mockReturnValueOnce('subnet-123456')                             // subnet
             .mockReturnValueOnce('true');                                     // wait-for-finish
 
         await run();

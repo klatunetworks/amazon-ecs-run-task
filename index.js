@@ -92,7 +92,7 @@ async function run() {
     const cluster = core.getInput('cluster', { required: false });
     const count = core.getInput('count', { required: true });
     const startedBy = core.getInput('started-by', { required: false }) || agent;
-    const subnets = core.getInput('subnets', { required: true });
+    const subnet = core.getInput('subnet', { required: true });
     const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
@@ -128,19 +128,7 @@ async function run() {
       startedBy: startedBy,
       networkConfiguration: {
         awsvpcConfiguration: {
-          subnets: subnets
-        },
-      },
-    })}`)
-
-    console.log(`Running task with ${JSON.stringify({
-      cluster: clusterName,
-      taskDefinition: taskDefArn,
-      count: count,
-      startedBy: startedBy,
-      networkConfiguration: {
-        awsvpcConfiguration: {
-          subnets: subnets
+          subnets: [subnet]
         },
       },
     })}`)
@@ -152,7 +140,7 @@ async function run() {
       startedBy: startedBy,
       networkConfiguration: {
         awsvpcConfiguration: {
-          subnets: subnets
+          subnets: [subnet]
         },
       },
     }).promise();
