@@ -1,6 +1,6 @@
 {
   "name": "amazon-ecs-run-task",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Registers an Amazon ECS task definition and deploys it to an ECS Cluster as a standalone task.",
   "main": "index.js",
   "scripts": {
