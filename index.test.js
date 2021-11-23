@@ -133,6 +133,7 @@ describe('Deploy to ECS', () => {
             taskDefinition: 'task:def:arn',
             count: '1',
             startedBy: 'amazon-ecs-run-task-for-github-actions',
+            launchType: "FARGATE",
             networkConfiguration: {
               awsvpcConfiguration: {
                 subnets: ['subnet-asdfasdfa'],
@@ -153,6 +154,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
             .mockReturnValueOnce('subnet-123456')                             // subnet
             .mockReturnValueOnce('sg-asdfasdfa')                              // security group
+            .mockReturnValueOnce('FARGATE')                                   // launch type
             .mockReturnValueOnce('true');                                     // wait-for-finish
 
         await run();
