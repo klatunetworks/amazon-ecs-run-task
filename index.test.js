@@ -35,7 +35,8 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('cluster-789')                               // cluster
             .mockReturnValueOnce('1')                                         // count
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
-            .mockReturnValueOnce('subnet-asdfasdfa');                       // subnet
+            .mockReturnValueOnce('subnet-asdfasdfa')                          // subnet
+            .mockReturnValueOnce('sg-asdfasdfa');                             // security group
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
 
@@ -134,7 +135,8 @@ describe('Deploy to ECS', () => {
             startedBy: 'amazon-ecs-run-task-for-github-actions',
             networkConfiguration: {
               awsvpcConfiguration: {
-                subnets: ['subnet-asdfasdfa']
+                subnets: ['subnet-asdfasdfa'],
+                securityGroups: ['sg-asdfasdfa']
               },
             },
         });
@@ -150,6 +152,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('1')                                         // count
             .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
             .mockReturnValueOnce('subnet-123456')                             // subnet
+            .mockReturnValueOnce('sg-asdfasdfa')                              // security group
             .mockReturnValueOnce('true');                                     // wait-for-finish
 
         await run();
