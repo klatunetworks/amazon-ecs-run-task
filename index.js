@@ -94,6 +94,7 @@ async function run() {
     const startedBy = core.getInput('started-by', { required: false }) || agent;
     const subnet = core.getInput('subnet', { required: true });
     const securityGroup = core.getInput('security-group', { required: true });
+    const launchType = core.getInput('launch-type', { required: false }) || 'FARGATE';
     const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
@@ -133,6 +134,7 @@ async function run() {
           securityGroups: [securityGroup]
         },
       },
+      launchType: launchType
     })}`)
 
     const runTaskResponse = await ecs.runTask({
@@ -146,6 +148,7 @@ async function run() {
           securityGroups: [securityGroup]
         },
       },
+      launchType: launchType
     }).promise();
 
     core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
