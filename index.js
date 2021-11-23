@@ -90,9 +90,9 @@ async function run() {
     // Get inputs
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const cluster = core.getInput('cluster', { required: false });
-    const subnets = core.getInput('subnets', { required: true });
     const count = core.getInput('count', { required: true });
     const startedBy = core.getInput('started-by', { required: false }) || agent;
+    const subnets = core.getInput('subnets', { required: true });
     const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
     if (waitForMinutes > MAX_WAIT_MINUTES) {
@@ -123,26 +123,38 @@ async function run() {
 
     core.debug(`Running task with ${JSON.stringify({
       cluster: clusterName,
+      taskDefinition: taskDefArn,
+      count: count,
+      startedBy: startedBy,
       networkConfiguration: {
         awsvpcConfiguration: {
           subnets: subnets
-        }
+        },
       },
+    })}`)
+
+    console.log(`Running task with ${JSON.stringify({
+      cluster: clusterName,
       taskDefinition: taskDefArn,
       count: count,
-      startedBy: startedBy
+      startedBy: startedBy,
+      networkConfiguration: {
+        awsvpcConfiguration: {
+          subnets: subnets
+        },
+      },
     })}`)
 
     const runTaskResponse = await ecs.runTask({
       cluster: clusterName,
+      taskDefinition: taskDefArn,
+      count: count,
+      startedBy: startedBy,
       networkConfiguration: {
         awsvpcConfiguration: {
           subnets: subnets
-        }
+        },
       },
-      taskDefinition: taskDefArn,
-      count: count,
-      startedBy: startedBy
     }).promise();
 
     core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
