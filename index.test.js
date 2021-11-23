@@ -137,7 +137,8 @@ describe('Deploy to ECS', () => {
             networkConfiguration: {
               awsvpcConfiguration: {
                 subnets: ['subnet-asdfasdfa'],
-                securityGroups: ['sg-asdfasdfa']
+                securityGroups: ['sg-asdfasdfa'],
+                assignPublicIp: 'ENABLED'
               },
             },
         });
@@ -155,6 +156,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('subnet-123456')                             // subnet
             .mockReturnValueOnce('sg-asdfasdfa')                              // security group
             .mockReturnValueOnce('FARGATE')                                   // launch type
+            .mockReturnValueOnce('ENABLED')                                   // assign-public-ip
             .mockReturnValueOnce('true');                                     // wait-for-finish
 
         await run();
