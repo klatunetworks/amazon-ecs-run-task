@@ -13,6 +13,9 @@ inputs:
   count:
     description: "The count of tasks to run. Will default to the 1"
     required: true
+  subnets:
+    description: "The subnets to which the run task should be attached"
+    required: true
   started-by:
     description: "The value of the task started-by"
     required: false
