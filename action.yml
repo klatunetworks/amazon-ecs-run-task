@@ -25,8 +25,8 @@ inputs:
   wait-for-minutes:
     description: 'How long to wait for the task reach stopped state, in minutes (default: 30 minutes, max: 6 hours).'
     required: false
-  security-group:
-    description: "The ID of the security group associated with the task or service."
+  security-groups:
+    description: "The IDs of the security groups associated with the task or service (space separated)."
     required: true
   assign-public-ip:
     description: "Whether the task’s elastic network interface receives a public IP address."

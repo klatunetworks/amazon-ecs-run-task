@@ -93,7 +93,7 @@ async function run() {
     const count = core.getInput('count', { required: true });
     const startedBy = core.getInput('started-by', { required: false }) || agent;
     const subnets = core.getInput('subnets', { required: true }).split(' ');
-    const securityGroup = core.getInput('security-group', { required: true });
+    const securityGroups = core.getInput('security-groups', { required: true }).split(' ');
     const assignPublicIp = core.getInput('assign-public-ip', { required: false }) || 'ENABLED';
     const launchType = core.getInput('launch-type', { required: false }) || 'FARGATE';
     const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
@@ -132,7 +132,7 @@ async function run() {
       networkConfiguration: {
         awsvpcConfiguration: {
           subnets: subnets,
-          securityGroups: [securityGroup],
+          securityGroups: securityGroups,
           assignPublicIp: assignPublicIp
         },
       },
@@ -147,7 +147,7 @@ async function run() {
       networkConfiguration: {
         awsvpcConfiguration: {
           subnets: subnets,
-          securityGroups: [securityGroup],
+          securityGroups: securityGroups,
           assignPublicIp: assignPublicIp
         },
       },
