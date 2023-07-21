@@ -9,7 +9,7 @@ inputs:
     required: true
   cluster:
     description: "The name of the ECS cluster. Will default to the 'default' cluster"
-    required: true
+    required: false
   count:
     description: "The count of tasks to run. Will default to the 1"
     required: true
@@ -25,6 +25,17 @@ inputs:
   wait-for-minutes:
     description: 'How long to wait for the task reach stopped state, in minutes (default: 30 minutes, max: 6 hours).'
     required: false
+  security-group:
+    description: "The ID of the security group associated with the task or service."
+    required: true
+  assign-public-ip:
+    description: "Whether the task’s elastic network interface receives a public IP address."
+    required: false
+    default: ENABLED
+  launch-type:
+    description: "The infrastructure where your task runs on. Possible values: EC2, FARGATE, or EXTERNAL"
+    required: false
+    default: FARGATE
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
