@@ -98,6 +98,7 @@ async function run() {
     const launchType         = core.getInput('launch-type', { required: false }) || 'FARGATE';
     const waitForFinish      = core.getInput('wait-for-finish', { required: false }) || false;
     let waitForMinutes       = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
+    const overrides          = yaml.parse(core.getInput('overrides', { required: false }));
     if (waitForMinutes > MAX_WAIT_MINUTES) {
       waitForMinutes = MAX_WAIT_MINUTES;
     }
@@ -138,6 +139,10 @@ async function run() {
       },
       launchType: launchType
     };
+
+    if (overrides) {
+      taskParams['overrides'] = overrides;
+    }
 
     core.debug(`Running task with ${JSON.stringify(taskParams)}`)
 

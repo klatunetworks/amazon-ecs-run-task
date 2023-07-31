@@ -41,6 +41,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('')                                       // launch-type
             .mockReturnValueOnce('')                                       // wait-for-finish
             .mockReturnValueOnce('')                                       // wait-for-minutes
+            .mockReturnValueOnce('')                                       // overrides
             ;
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
@@ -164,6 +165,7 @@ describe('Deploy to ECS', () => {
             .mockReturnValueOnce('FARGATE')                                // launch type
             .mockReturnValueOnce('true')                                   // wait-for-finish
             .mockReturnValueOnce('30')                                     // wait-for-minutes
+            .mockReturnValueOnce('')                                       // overrides
             ;
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);

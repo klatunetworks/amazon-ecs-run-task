@@ -36,6 +36,9 @@ inputs:
     description: "The infrastructure where your task runs on. Possible values: EC2, FARGATE, or EXTERNAL"
     required: false
     default: FARGATE
+  overrides:
+    description: "YAML string including any overrides as defined by `ECS#runTask(overrides:)`"
+    required: false
 outputs:
   task-definition-arn:
     description: 'The ARN of the registered ECS task definition'
