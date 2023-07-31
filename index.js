@@ -124,7 +124,7 @@ async function run() {
 
     const clusterName = cluster ? cluster : 'default';
 
-    core.debug(`Running task with ${JSON.stringify({
+    let taskParams = {
       cluster: clusterName,
       taskDefinition: taskDefArn,
       count: count,
@@ -137,22 +137,11 @@ async function run() {
         },
       },
       launchType: launchType
-    })}`)
+    };
 
-    const runTaskResponse = await ecs.runTask({
-      cluster: clusterName,
-      taskDefinition: taskDefArn,
-      count: count,
-      startedBy: startedBy,
-      networkConfiguration: {
-        awsvpcConfiguration: {
-          subnets: subnets,
-          securityGroups: securityGroups,
-          assignPublicIp: assignPublicIp
-        },
-      },
-      launchType: launchType
-    }).promise();
+    core.debug(`Running task with ${JSON.stringify(taskParams)}`)
+
+    const runTaskResponse = await ecs.runTask(taskParams).promise();
 
     core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
 
