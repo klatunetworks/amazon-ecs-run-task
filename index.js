@@ -18,6 +18,7 @@ const IGNORED_TASK_DEFINITION_ATTRIBUTES = [
 
 const WAIT_DEFAULT_DELAY_SEC = 5;
 const MAX_WAIT_MINUTES = 360;
+const NETWORK_MODE_AWSVPC = 'awsvpc';
 
 function isEmptyValue(value) {
   if (value === null || value === undefined || value === '') {
@@ -92,9 +93,6 @@ async function run() {
     const cluster = core.getInput('cluster', { required: false });
     const count = core.getInput('count', { required: true });
     const startedBy = core.getInput('started-by', { required: false }) || agent;
-    const subnets = core.getInput('subnets', { required: true }).split(' ');
-    const securityGroups = core.getInput('security-groups', { required: true }).split(' ');
-    const assignPublicIp = core.getInput('assign-public-ip', { required: false }) || 'ENABLED';
     const launchType = core.getInput('launch-type', { required: false }) || 'FARGATE';
     const waitForFinish = core.getInput('wait-for-finish', { required: false }) || false;
     let waitForMinutes = parseInt(core.getInput('wait-for-minutes', { required: false })) || 30;
@@ -110,6 +108,11 @@ async function run() {
     const fileContents = fs.readFileSync(taskDefPath, 'utf8');
     const taskDefContents = removeIgnoredAttributes(cleanNullKeys(yaml.parse(fileContents)));
 
+    const awsvpcNetworkMode = (taskDefContents.networkMode == NETWORK_MODE_AWSVPC);
+    const subnets = (core.getInput('subnets', { required: awsvpcNetworkMode }) || '').split(' ');
+    const securityGroups = (core.getInput('security-groups', { required: awsvpcNetworkMode }) || '').split(' ');
+    const assignPublicIp = core.getInput('assign-public-ip', { required: awsvpcNetworkMode }) || 'ENABLED';
+
     let registerResponse;
     try {
       registerResponse = await ecs.registerTaskDefinition(taskDefContents).promise();
@@ -124,35 +127,27 @@ async function run() {
 
     const clusterName = cluster ? cluster : 'default';
 
-    core.debug(`Running task with ${JSON.stringify({
+    let task = {
       cluster: clusterName,
       taskDefinition: taskDefArn,
       count: count,
       startedBy: startedBy,
-      networkConfiguration: {
-        awsvpcConfiguration: {
-          subnets: subnets,
-          securityGroups: securityGroups,
-          assignPublicIp: assignPublicIp
-        },
-      },
       launchType: launchType
-    })}`)
+    };
 
-    const runTaskResponse = await ecs.runTask({
-      cluster: clusterName,
-      taskDefinition: taskDefArn,
-      count: count,
-      startedBy: startedBy,
-      networkConfiguration: {
+    if (awsvpcNetworkMode) {
+      task.networkConfiguration = {
         awsvpcConfiguration: {
           subnets: subnets,
           securityGroups: securityGroups,
           assignPublicIp: assignPublicIp
-        },
-      },
-      launchType: launchType
-    }).promise();
+        }
+      };
+    }
+
+    core.debug(`Running task with ${JSON.stringify(task)}`)
+
+    const runTaskResponse = await ecs.runTask(task).promise();
 
     core.debug(`Run task response ${JSON.stringify(runTaskResponse)}`)
 

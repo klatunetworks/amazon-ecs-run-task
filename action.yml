@@ -14,8 +14,8 @@ inputs:
     description: "The count of tasks to run. Will default to the 1"
     required: true
   subnets:
-    description: "A space separated list of subnets to which the task should be attached"
-    required: true
+    description: "A space separated list of subnets to which the task should be attached, required for tasks with awsvpc network mode"
+    required: false
   started-by:
     description: "The value of the task started-by"
     required: false
@@ -26,8 +26,8 @@ inputs:
     description: 'How long to wait for the task reach stopped state, in minutes (default: 30 minutes, max: 6 hours).'
     required: false
   security-groups:
-    description: "The IDs of the security groups associated with the task or service (space separated)."
-    required: true
+    description: "The IDs of the security groups associated with the task or service (space separated), required for tasks with awsvpc network mode."
+    required: false
   assign-public-ip:
     description: "Whether the task’s elastic network interface receives a public IP address."
     required: false

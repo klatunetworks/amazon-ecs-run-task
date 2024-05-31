@@ -31,12 +31,16 @@ describe('Deploy to ECS', () => {
 
         core.getInput = jest
             .fn()
-            .mockReturnValueOnce('task-definition.json')                      // task-definition
-            .mockReturnValueOnce('cluster-789')                               // cluster
-            .mockReturnValueOnce('1')                                         // count
-            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
-            .mockReturnValueOnce('subnet-asdfasdfa')                          // subnets
-            .mockReturnValueOnce('sg-asdfasdfa');                             // security group
+            .mockReturnValueOnce('task-definition.json')                   // task-definition
+            .mockReturnValueOnce('cluster-789')                            // cluster
+            .mockReturnValueOnce('1')                                      // count
+            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions') // started-by
+            .mockReturnValueOnce('FARGATE')                                // launch-type
+            .mockReturnValueOnce('false')                                  // wait-for-finish
+            .mockReturnValueOnce(30)                                       // wait-for-minutes
+            .mockReturnValueOnce('subnet-asdfasdfa')                       // subnets
+            .mockReturnValueOnce('sg-asdfasdfa')                           // security group
+            .mockReturnValueOnce('ENABLED');                               // assign-public-ip
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
 
@@ -123,10 +127,38 @@ describe('Deploy to ECS', () => {
         });
     });
 
-    test('registers the task definition contents and runs the task', async () => {
+    test('registers the task definition contents without network mode specified and runs the task without network configuration', async () => {
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
-        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family'});
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family' });
+        expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
+        expect(mockRunTasks).toHaveBeenNthCalledWith(1, {
+            cluster: 'cluster-789',
+            taskDefinition: 'task:def:arn',
+            count: '1',
+            startedBy: 'amazon-ecs-run-task-for-github-actions',
+            launchType: "FARGATE"
+        });
+        expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
+        expect(core.setOutput).toBeCalledWith('task-arn', ['arn:aws:ecs:fake-region:account_id:task/arn']);
+    });
+
+    test('registers the task definition contents with awsvpc network mode and runs the task with network configuration', async () => {
+        fs.readFileSync.mockImplementation((pathInput, encoding) => {
+            if (encoding != 'utf8') {
+                throw new Error(`Wrong encoding ${encoding}`);
+            }
+
+            if (pathInput == path.join(process.env.GITHUB_WORKSPACE, 'task-definition.json')) {
+                return JSON.stringify({ family: 'task-def-family', networkMode: 'awsvpc' });
+            }
+
+            throw new Error(`Unknown path ${pathInput}`);
+        });
+
+        await run();
+        expect(core.setFailed).toHaveBeenCalledTimes(0);
+        expect(mockEcsRegisterTaskDef).toHaveBeenNthCalledWith(1, { family: 'task-def-family', networkMode: 'awsvpc' });
         expect(core.setOutput).toHaveBeenNthCalledWith(1, 'task-definition-arn', 'task:def:arn');
         expect(mockRunTasks).toHaveBeenNthCalledWith(1, {
             cluster: 'cluster-789',
@@ -140,7 +172,7 @@ describe('Deploy to ECS', () => {
                 securityGroups: ['sg-asdfasdfa'],
                 assignPublicIp: 'ENABLED'
               },
-            },
+            }
         });
         expect(mockEcsWaiter).toHaveBeenCalledTimes(0);
         expect(core.setOutput).toBeCalledWith('task-arn', ['arn:aws:ecs:fake-region:account_id:task/arn']);
@@ -149,15 +181,16 @@ describe('Deploy to ECS', () => {
     test('registers the task definition contents and waits for tasks to finish successfully', async () => {
         core.getInput = jest
             .fn()
-            .mockReturnValueOnce('task-definition.json')                      // task-definition
-            .mockReturnValueOnce('cluster-789')                               // cluster
-            .mockReturnValueOnce('1')                                         // count
-            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions')    // started-by
-            .mockReturnValueOnce('subnet-123456')                             // subnets
-            .mockReturnValueOnce('sg-asdfasdfa')                              // security group
-            .mockReturnValueOnce('FARGATE')                                   // launch type
-            .mockReturnValueOnce('ENABLED')                                   // assign-public-ip
-            .mockReturnValueOnce('true');                                     // wait-for-finish
+            .mockReturnValueOnce('task-definition.json')                   // task-definition
+            .mockReturnValueOnce('cluster-789')                            // cluster
+            .mockReturnValueOnce('1')                                      // count
+            .mockReturnValueOnce('amazon-ecs-run-task-for-github-actions') // started-by
+            .mockReturnValueOnce('FARGATE')                                // launch type
+            .mockReturnValueOnce('true')                                   // wait-for-finish
+            .mockReturnValueOnce(30)                                       // wait-for-minutes
+            .mockReturnValueOnce('subnet-123456')                          // subnets
+            .mockReturnValueOnce('sg-asdfasdfa')                           // security group
+            .mockReturnValueOnce('ENABLED');                               // assign-public-ip
 
         await run();
         expect(core.setFailed).toHaveBeenCalledTimes(0);
